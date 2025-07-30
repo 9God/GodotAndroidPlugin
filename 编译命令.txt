@@ -1,0 +1,6 @@
+./gradlew assemble
+godot 4.4
+gradle-8.2-bin
+compileSdk = 34
+targetSdk = 34
+minSdk = 24
