@@ -6,21 +6,21 @@ plugins {
 }
 
 // TODO: Update value to your plugin's name.
-val pluginName = "GodotAndroidPluginTemplate"
+val pluginName = "GodotAndroidPlugin"
 
 // TODO: Update value to match your plugin's package name.
-val pluginPackageName = "org.godotengine.plugin.android.template"
+val pluginPackageName = "org.godotengine.plugin.android.godotandroidplugin"
 
 android {
     namespace = pluginPackageName
-    compileSdk = 33
+    compileSdk = 34
 
     buildFeatures {
         buildConfig = true
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 24
 
         manifestPlaceholders["godotPluginName"] = pluginName
         manifestPlaceholders["godotPluginPackageName"] = pluginPackageName
@@ -40,6 +40,16 @@ android {
 dependencies {
     implementation("org.godotengine:godot:4.3.0.stable")
     // TODO: Additional dependencies should be added to export_plugin.gd as well.
+
+    // CameraX 核心库
+    implementation("androidx.camera:camera-core:1.4.2")
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+
+    // AppCompatActivity 支持库
+    // implementation("androidx.appcompat:appcompat:1.7.1")
+    // Activity Result API 支持库
+    // implementation("androidx.activity:activity-ktx:1.10.1")
 }
 
 // BUILD TASKS DEFINITION
