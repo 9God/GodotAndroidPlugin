@@ -34,10 +34,12 @@ import java.nio.ByteBuffer
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.provider.MediaStore
-import androidx.core.content.FileProvider
+import android.os.Build
+import android.view.Surface.ROTATION_0
+import android.view.Surface.ROTATION_180
+import android.view.Surface.ROTATION_270
+import android.view.Surface.ROTATION_90
 import java.io.ByteArrayOutputStream
-import java.io.File
 
 class GodotAndroidPlugin(godot: Godot): GodotPlugin(godot) {
     override fun getPluginName() = BuildConfig.GODOT_PLUGIN_NAME
@@ -50,6 +52,16 @@ class GodotAndroidPlugin(godot: Godot): GodotPlugin(godot) {
         callbackId = instanceId
         callbackMethod = method
     }
+
+    // 定义 GDScript 可调用的方法
+    @UsedByGodot
+    fun hideNavigationBarAndFloatStatusBar() {
+        val activity = godot.getActivity()?: return
+       runOnUiThread {
+           // activity.window.statusBarColor = Color.TRANSPARENT
+       }
+    }
+
 
     /**
      * Example showing how to declare a method that's used by Godot.
@@ -180,7 +192,7 @@ class GodotAndroidPlugin(godot: Godot): GodotPlugin(godot) {
                 // 2. 获取 CameraProvider 并释放旧资源（避免重复绑定）
                 cameraProvider.unbindAll()
 
-                // 方案1：按首选宽高比自动选择分辨率（推荐）
+                // 按首选宽高比自动选择分辨率（推荐）
                 val resolutionSelector = ResolutionSelector.Builder()
                     .setAspectRatioStrategy(AspectRatioStrategy(
                         AspectRatio.RATIO_4_3, // 目标宽高比
@@ -195,6 +207,8 @@ class GodotAndroidPlugin(godot: Godot): GodotPlugin(godot) {
                 // 3. 配置 ImageAnalysis
                 imageAnalysis = ImageAnalysis.Builder()
                     .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                    // .setTargetRotation(ROTATION_0)
+                    .setOutputImageRotationEnabled(true)
                     .setResolutionSelector(resolutionSelector)
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // 只保留最新帧
                     .build()
@@ -236,6 +250,33 @@ class GodotAndroidPlugin(godot: Godot): GodotPlugin(godot) {
      * 处理 ImageProxy 并写入双缓冲区
      */
     private fun processImageProxy(imageProxy: ImageProxy) {
+        /*
+        if (callbackMethod.isNotEmpty() && callbackId > 0) {
+            activity?.runOnUiThread {
+                val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    activity?.display?.rotation
+                } else {
+                    val display = activity?.windowManager?.defaultDisplay
+                    display?.rotation
+                }
+
+                /*
+                if (cameraId.get() == 1) {
+                    when (rotation) {
+                        ROTATION_90 -> ROTATION_0
+                        ROTATION_270 -> ROTATION_180
+                        else -> rotation
+                    }
+                }
+                 */
+
+
+                val args = arrayOf(imageProxy.imageInfo.rotationDegrees.toString() + "-" + rotation.toString()) // 字符串参数
+                org.godotengine.godot.GodotLib.calldeferred(callbackId, callbackMethod, args)
+            }
+        }
+         */
+
         val validBytesPerRow = cameraWidth.get() * 4;
         val height = cameraHeight.get()
         val validTotalBytes = height * validBytesPerRow;
